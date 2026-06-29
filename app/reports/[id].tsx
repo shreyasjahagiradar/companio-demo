@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Card from '@/components/Card';
+import Footer from '@/components/Footer';
 import { colors, spacing, typography, borderRadius } from '@/constants/theme';
 import {
   Activity,
@@ -140,30 +141,29 @@ export default function ReportDetailScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-          activeOpacity={0.8}
-        >
-          <ArrowLeft size={20} color={colors.text.primary} />
-        </TouchableOpacity>
-        <View style={styles.headerContent}>
-          <Text style={styles.appName}>Diagnostic Report</Text>
-          <Text style={styles.title} numberOfLines={1}>
-            {report?.report_name || 'Report Detail'}
-          </Text>
-          {report && (
-            <Text style={styles.subtitle}>{formatDate(report.report_date)}</Text>
-          )}
-        </View>
-      </View>
-
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+            activeOpacity={0.8}
+          >
+            <ArrowLeft size={20} color={colors.text.primary} />
+          </TouchableOpacity>
+          <View style={styles.headerContent}>
+            <Text style={styles.appName}>Diagnostic Report</Text>
+            <Text style={styles.title} numberOfLines={1}>
+              {report?.report_name || 'Report Detail'}
+            </Text>
+            {report && (
+              <Text style={styles.subtitle}>{formatDate(report.report_date)}</Text>
+            )}
+          </View>
+        </View>
         {loading ? (
           <Card style={styles.stateCard}>
             <Text style={styles.loadingText}>Loading report details...</Text>
@@ -288,6 +288,7 @@ export default function ReportDetailScreen() {
             <View style={{ height: spacing.xl }} />
           </>
         )}
+        <Footer />
       </ScrollView>
     </View>
   );

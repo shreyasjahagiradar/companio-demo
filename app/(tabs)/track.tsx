@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, ActivityIndicator } from 'react-native';
 import { useStore } from '@/store/useStore';
 import Card from '@/components/Card';
 import Button from '@/components/Button';
@@ -7,9 +7,18 @@ import DatePickerModal from '@/components/DatePickerModal';
 import { colors, spacing, typography, borderRadius, shadows } from '@/constants/theme';
 import { Check, Coffee, Pill, Activity, ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { saveLog, loadLog } from '@/services/logService';
+import Footer from '@/components/Footer';
+
+/** Format a Date to 'YYYY-MM-DD' for Supabase */
+function toDateString(date: Date): string {
+  return date.toISOString().split('T')[0];
+}
 
 export default function TrackScreen() {
   const sndPlan = useStore((state) => state.sndPlan);
+  const user = useStore((state) => state.user);
+  const clientId = user?.id;
   
   // Extract meals from the latest diet plan version
   const mealItems = useMemo(() => {
@@ -62,12 +71,40 @@ export default function TrackScreen() {
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isDatePickerVisible, setDatePickerVisible] = useState(false);
+  const [loadingLog, setLoadingLog] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [hasSavedLog, setHasSavedLog] = useState(false);
+
+  // Load saved log when date changes or on mount
+  const fetchLogForDate = useCallback(async (date: Date) => {
+    if (!clientId) return;
+    setLoadingLog(true);
+    try {
+      const log = await loadLog(clientId, toDateString(date));
+      if (log && log.checked_item_ids) {
+        setCheckedIds(new Set(log.checked_item_ids));
+        setHasSavedLog(true);
+      } else {
+        setCheckedIds(new Set());
+        setHasSavedLog(false);
+      }
+    } catch (err) {
+      console.error('[Track] Error loading log:', err);
+      setCheckedIds(new Set());
+      setHasSavedLog(false);
+    } finally {
+      setLoadingLog(false);
+    }
+  }, [clientId]);
+
+  useEffect(() => {
+    fetchLogForDate(selectedDate);
+  }, [selectedDate, fetchLogForDate]);
 
   const handlePrevDay = () => {
     const newDate = new Date(selectedDate);
     newDate.setDate(selectedDate.getDate() - 1);
     setSelectedDate(newDate);
-    setCheckedIds(new Set()); // Reset checks for new date
   };
 
   const handleNextDay = () => {
@@ -75,7 +112,6 @@ export default function TrackScreen() {
     newDate.setDate(selectedDate.getDate() + 1);
     if (newDate <= new Date()) { // Don't go into future
       setSelectedDate(newDate);
-      setCheckedIds(new Set());
     }
   };
   
@@ -92,16 +128,41 @@ export default function TrackScreen() {
     setCheckedIds(newChecked);
   };
 
+  const handleUncheckAll = () => {
+    setCheckedIds(new Set());
+  };
+
   const progress = allItems.length > 0 ? (checkedIds.size / allItems.length) * 100 : 0;
   
-  // Submit handler
+  // Submit handler — saves to Supabase
   const [submitted, setSubmitted] = useState(false);
-  const handleSubmit = () => {
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-      setCheckedIds(new Set());
-    }, 3000);
+  const handleSubmit = async () => {
+    if (!clientId) {
+      console.warn('[Track] No client ID, cannot save log');
+      return;
+    }
+    
+    setSaving(true);
+    try {
+      const result = await saveLog(
+        clientId,
+        toDateString(selectedDate),
+        Array.from(checkedIds),
+        allItems.length
+      );
+      
+      if (result) {
+        setHasSavedLog(true);
+        setSubmitted(true);
+        setTimeout(() => {
+          setSubmitted(false);
+        }, 2500);
+      }
+    } catch (err) {
+      console.error('[Track] Error saving log:', err);
+    } finally {
+      setSaving(false);
+    }
   };
   
   if (submitted) {
@@ -140,100 +201,134 @@ export default function TrackScreen() {
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={['#1B3B2B', '#0E2319']}
-        style={styles.header}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
-      >
-        <Text style={styles.appName}>MendRx Companio</Text>
-        
-        <View style={styles.headerTop}>
-          <View>
-            <Text style={styles.title}>Daily Log</Text>
-            <Text style={styles.subtitle}>Track your prescribed plan</Text>
-          </View>
-          
-          <View style={styles.dateSelector}>
-            <TouchableOpacity onPress={handlePrevDay} style={styles.dateBtn}>
-              <ChevronLeft size={20} color={colors.white} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setDatePickerVisible(true)}>
-              <Text style={styles.dateText}>{dateLabel}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              onPress={handleNextDay} 
-              style={[styles.dateBtn, isToday && { opacity: 0.3 }]} 
-              disabled={isToday}
-            >
-              <ChevronRight size={20} color={colors.white} />
-            </TouchableOpacity>
-          </View>
-        </View>
-        
-        {/* Main Progress Bar */}
-        <View style={styles.progressContainer}>
-          <View style={styles.progressHeader}>
-            <Text style={styles.progressText}>Today's Completion</Text>
-            <Text style={styles.progressPercent}>{Math.round(progress)}%</Text>
-          </View>
-          <View style={styles.progressBarTrack}>
-            <View style={[styles.progressBarFill, { width: `${progress}%` }]} />
-          </View>
-        </View>
-      </LinearGradient>
-
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+        stickyHeaderIndices={[1]}
       >
-        <Card variant="elevated" style={styles.card}>
-          <View style={styles.cardHeader}>
-            <View style={[styles.iconWrap, { backgroundColor: '#ECF3D6' }]}>
-              <Coffee size={20} color={colors.lime} />
+        {/* Index 0: Header Top */}
+        <LinearGradient
+          colors={['#1B3B2B', '#132D21']}
+          style={styles.headerTopHalf}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
+        >
+          <Text style={styles.appName}>MendRx Companio</Text>
+          
+          <View style={styles.headerTop}>
+            <View>
+              <Text style={styles.title}>Daily Log</Text>
+              <Text style={styles.subtitle}>Track your prescribed plan</Text>
             </View>
-            <Text style={styles.cardTitle}>Meals & Diet Plan</Text>
+            
+            <View style={styles.dateSelector}>
+              <TouchableOpacity onPress={handlePrevDay} style={styles.dateBtn}>
+                <ChevronLeft size={20} color={colors.white} />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setDatePickerVisible(true)}>
+                <Text style={styles.dateText}>{dateLabel}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                onPress={handleNextDay} 
+                style={[styles.dateBtn, isToday && { opacity: 0.3 }]} 
+                disabled={isToday}
+              >
+                <ChevronRight size={20} color={colors.white} />
+              </TouchableOpacity>
+            </View>
           </View>
-          <View style={styles.cardBody}>
-            {renderList(mealItems, colors.lime)}
-          </View>
-        </Card>
+        </LinearGradient>
 
-        <Card variant="elevated" style={styles.card}>
-          <View style={styles.cardHeader}>
-            <View style={[styles.iconWrap, { backgroundColor: '#FDE8F3' }]}>
-              <Pill size={20} color={colors.pink} />
+        {/* Index 1: Sticky Progress Bar */}
+        <View style={styles.stickyContainer}>
+          <LinearGradient
+            colors={['#132D21', '#0E2319']}
+            style={styles.headerBottomHalf}
+          >
+            <View style={styles.progressContainer}>
+              <View style={styles.progressHeader}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <Text style={styles.progressText}>{isToday ? "Today's" : dateLabel + "'s"} Completion</Text>
+                  {hasSavedLog && <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#A8C7A7' }} />}
+                </View>
+                <Text style={styles.progressPercent}>{Math.round(progress)}%</Text>
+              </View>
+              <View style={styles.progressBarTrack}>
+                <View style={[styles.progressBarFill, { width: `${progress}%` }]} />
+              </View>
             </View>
-            <Text style={styles.cardTitle}>Supplements</Text>
-          </View>
-          <View style={styles.cardBody}>
-            {renderList(supplementItems, colors.pink)}
-          </View>
-        </Card>
+          </LinearGradient>
+        </View>
 
-        <Card variant="elevated" style={styles.card}>
-          <View style={styles.cardHeader}>
-            <View style={[styles.iconWrap, { backgroundColor: '#E0E7FF' }]}>
-              <Activity size={20} color={colors.indigo} />
+        {/* Index 2: Content */}
+        <View style={styles.scrollContent}>
+          {loadingLog ? (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', minHeight: 300 }}>
+              <ActivityIndicator size="large" color={colors.primary} />
+              <Text style={{ marginTop: spacing.md, color: colors.text.secondary }}>Loading log...</Text>
             </View>
-            <Text style={styles.cardTitle}>Activity</Text>
-          </View>
-          <View style={styles.cardBody}>
-            {renderList(activityItems, colors.indigo)}
-          </View>
-        </Card>
-        
-        <View style={{ height: spacing.xxl * 2 }} />
+          ) : (
+            <>
+              <Card variant="elevated" style={styles.card}>
+              <View style={styles.cardHeader}>
+                <View style={[styles.iconWrap, { backgroundColor: '#ECF3D6' }]}>
+                  <Coffee size={20} color={colors.lime} />
+                </View>
+                <Text style={styles.cardTitle}>Meals & Diet Plan</Text>
+              </View>
+              <View style={styles.cardBody}>
+                {renderList(mealItems, colors.lime)}
+              </View>
+            </Card>
+
+            <Card variant="elevated" style={styles.card}>
+              <View style={styles.cardHeader}>
+                <View style={[styles.iconWrap, { backgroundColor: '#FDE8F3' }]}>
+                  <Pill size={20} color={colors.pink} />
+                </View>
+                <Text style={styles.cardTitle}>Supplements</Text>
+              </View>
+              <View style={styles.cardBody}>
+                {renderList(supplementItems, colors.pink)}
+              </View>
+            </Card>
+
+            <Card variant="elevated" style={styles.card}>
+              <View style={styles.cardHeader}>
+                <View style={[styles.iconWrap, { backgroundColor: '#E0E7FF' }]}>
+                  <Activity size={20} color={colors.indigo} />
+                </View>
+                <Text style={styles.cardTitle}>Activity</Text>
+              </View>
+              <View style={styles.cardBody}>
+                {renderList(activityItems, colors.indigo)}
+              </View>
+            </Card>
+            
+            <View style={styles.actionContainer}>
+              <Button
+                title="Uncheck all"
+                onPress={handleUncheckAll}
+                size="medium"
+                variant="outline"
+                disabled={saving || checkedIds.size === 0}
+                style={{ marginRight: spacing.sm }}
+              />
+              <Button
+                title={saving ? 'Saving...' : hasSavedLog ? 'Update Log' : "Save Today's Log"}
+                onPress={handleSubmit}
+                size="medium"
+                disabled={saving}
+                loading={saving}
+              />
+            </View>
+            
+            <View style={{ height: spacing.xxl * 2 }} />
+            <Footer />
+          </>
+          )}
+        </View>
       </ScrollView>
-
-      <View style={styles.footer}>
-        <Button
-          title="Save Today's Log"
-          onPress={handleSubmit}
-          size="large"
-        />
-      </View>
 
       <DatePickerModal
         visible={isDatePickerVisible}
@@ -241,7 +336,6 @@ export default function TrackScreen() {
         selectedDate={selectedDate}
         onSelectDate={(date) => {
           setSelectedDate(date);
-          setCheckedIds(new Set());
         }}
         maxDate={new Date()}
       />
@@ -249,18 +343,32 @@ export default function TrackScreen() {
   );
 }
 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+    paddingTop: Platform.OS === 'ios' ? 90 : 70, // Offset for the absolute top TabBar
   },
-  header: {
+  headerTopHalf: {
     paddingHorizontal: spacing.xl,
-    paddingTop: Platform.OS === 'ios' ? 90 + spacing.xl : 70 + spacing.xl,
+    paddingTop: spacing.xl, // Just normal padding now
+    paddingBottom: spacing.sm,
+  },
+  headerBottomHalf: {
+    paddingHorizontal: spacing.xl,
     paddingBottom: spacing.lg,
     borderBottomLeftRadius: borderRadius.xxl,
     borderBottomRightRadius: borderRadius.xxl,
     ...shadows.lg,
+  },
+  stickyContainer: {
+    backgroundColor: 'transparent',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 8,
   },
   appName: {
     ...typography.caption,
@@ -274,12 +382,11 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '850' as any,
     color: colors.white,
-    letterSpacing: -0.5,
+    letterSpacing: 0.5,
   },
   subtitle: {
     ...typography.body,
-    fontSize: 14,
-    color: '#D1DDD6',
+    color: '#A8C7A7',
     marginTop: 2,
   },
   headerTop: {
@@ -375,6 +482,13 @@ const styles = StyleSheet.create({
     ...typography.h3,
     color: colors.text.primary,
     fontWeight: '700',
+  },
+  actionContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.lg,
   },
   cardBody: {
     paddingVertical: spacing.sm,

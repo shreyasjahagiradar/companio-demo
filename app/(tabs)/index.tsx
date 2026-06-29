@@ -16,6 +16,7 @@ import { useStore } from '@/store/useStore';
 import ProgressCircle from '@/components/ProgressCircle';
 import { LinearGradient } from 'expo-linear-gradient';
 import Card from '@/components/Card';
+import Footer from '@/components/Footer';
 
 const DEMO_USER_ID = '00000000-0000-0000-0000-000000000001';
 
@@ -253,13 +254,8 @@ export default function HomeScreen() {
             </Text>
           </Card>
 
-          <View style={styles.copyrightContainer}>
-            <Text style={styles.copyrightText}>© {new Date().getFullYear()} MendRx Companion. All rights reserved.</Text>
-          </View>
-
-          {/* Spacing for floating bottom bar - wait, it's at the top now, so maybe we don't need this much */}
-          <View style={{ height: 40 }} />
         </Animated.View>
+        <Footer />
       </ScrollView>
     </View>
   );

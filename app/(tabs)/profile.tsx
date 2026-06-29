@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from '
 import { useRouter } from 'expo-router';
 import Card from '@/components/Card';
 import Button from '@/components/Button';
+import Footer from '@/components/Footer';
 import { colors, spacing, typography, borderRadius, shadows } from '@/constants/theme';
 import { User, FileText, CreditCard, Bell, LogOut, ChevronRight } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -42,25 +43,24 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={['#1B3B2B', '#0E2319']}
-        style={styles.header}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
-      >
-        <Text style={styles.brandName}>MendRx Companio</Text>
-        <View style={styles.avatarContainer}>
-          <Text style={styles.avatarText}>{initial}</Text>
-        </View>
-        <Text style={styles.name}>{userName}</Text>
-        <Text style={styles.email}>{phone}</Text>
-      </LinearGradient>
-
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
+        <LinearGradient
+          colors={['#1B3B2B', '#0E2319']}
+          style={styles.header}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
+        >
+          <Text style={styles.brandName}>MendRx Companio</Text>
+          <View style={styles.avatarContainer}>
+            <Text style={styles.avatarText}>{initial}</Text>
+          </View>
+          <Text style={styles.name}>{userName}</Text>
+          <Text style={styles.email}>{phone}</Text>
+        </LinearGradient>
         <Card>
           <Text style={styles.sectionTitle}>Health Profile</Text>
           <View style={styles.profileItem}>
@@ -137,6 +137,7 @@ export default function ProfileScreen() {
         </View>
 
         <View style={{ height: spacing.xl }} />
+        <Footer />
       </ScrollView>
     </View>
   );

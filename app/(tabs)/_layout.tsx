@@ -1,6 +1,6 @@
 import { Tabs, Redirect } from 'expo-router';
 import { View, StyleSheet, Platform } from 'react-native';
-import { House, ChartLine, CalendarDays, CircleUserRound, ClipboardList } from 'lucide-react-native';
+import { House, ChartLine, CalendarDays, CircleUserRound, ClipboardList, FileText } from 'lucide-react-native';
 import { colors, borderRadius, shadows, spacing } from '@/constants/theme';
 import { useStore } from '@/store/useStore';
 
@@ -47,9 +47,15 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="progress"
+        name="report"
         options={{
-          href: null,
+          title: 'Report',
+          tabBarIcon: ({ color, focused }) => (
+            <View style={styles.iconContainer}>
+              <FileText size={20} color={color} strokeWidth={focused ? 2.2 : 1.8} />
+              {focused && <View style={styles.activeDot} />}
+            </View>
+          ),
         }}
       />
       <Tabs.Screen

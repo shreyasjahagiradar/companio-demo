@@ -12,6 +12,7 @@ import ReportSummaryCard from '@/components/ReportSummaryCard';
 import BloodPanelSummaryChart from '@/components/BloodPanelSummaryChart';
 import BloodPanelCard from '@/components/BloodPanelCard';
 import NotesCard from '@/components/NotesCard';
+import Footer from '@/components/Footer';
 
 const TABS = ['Diet', 'Supplements', 'Lifestyle', 'Report'];
 
@@ -102,44 +103,43 @@ export default function PlanScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header section with gradient highlights */}
-      <LinearGradient
-        colors={['#1B3B2B', '#0E2319']}
-        style={styles.header}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
-      >
-        <Text style={styles.appName}>MendRx Companio</Text>
-        <Text style={styles.title}>Your Plan</Text>
-        <Text style={styles.subtitle}>Tailored clinical nutrition protocol</Text>
-      </LinearGradient>
-
-      {/* Premium capsule selector */}
-      <View style={styles.tabOuter}>
-        <View style={styles.tabContainer}>
-          {TABS.map((tab, index) => {
-            const isSelected = activeTab === index;
-            return (
-              <TouchableOpacity
-                key={index}
-                style={[styles.tab, isSelected && styles.tabActive]}
-                onPress={() => setActiveTab(index)}
-                activeOpacity={0.8}
-              >
-                <Text style={[styles.tabText, isSelected && styles.tabTextActive]}>
-                  {tab}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-      </View>
-
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
+        {/* Header section with gradient highlights */}
+        <LinearGradient
+          colors={['#1B3B2B', '#0E2319']}
+          style={styles.header}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
+        >
+          <Text style={styles.appName}>MendRx Companio</Text>
+          <Text style={styles.title}>Your Plan</Text>
+          <Text style={styles.subtitle}>Tailored clinical nutrition protocol</Text>
+        </LinearGradient>
+
+        {/* Premium capsule selector */}
+        <View style={styles.tabOuter}>
+          <View style={styles.tabContainer}>
+            {TABS.map((tab, index) => {
+              const isSelected = activeTab === index;
+              return (
+                <TouchableOpacity
+                  key={index}
+                  style={[styles.tab, isSelected && styles.tabActive]}
+                  onPress={() => setActiveTab(index)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[styles.tabText, isSelected && styles.tabTextActive]}>
+                    {tab}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
         {activeTab === 0 && (
           <MealTimeline dayPlan={dayPlan} readOnly />
         )}
@@ -249,6 +249,7 @@ export default function PlanScreen() {
 
         {/* Spacing for bottom tab bar */}
         <View style={{ height: 110 }} />
+        <Footer />
       </ScrollView>
     </View>
   );

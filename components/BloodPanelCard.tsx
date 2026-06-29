@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
   },
   reasonBulletRow: {
     flexDirection: 'row',
-    crossAxisAlignment: 'flex-start',
+    alignItems: 'flex-start',
     gap: 8,
   },
   bulletPoint: {

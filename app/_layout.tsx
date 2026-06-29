@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   appContainerLarge: {
-    paddingHorizontal: Platform.OS === 'web' ? 96 : 0,
+    paddingHorizontal: Platform.OS === 'web' ? '20%' : 0,
   },
   mainContent: {
     flex: 1,

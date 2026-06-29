@@ -97,3 +97,15 @@ export interface CompanionReport {
   bloodPanelListMap: Record<string, BloodMarker[]>;
   notes: string | null;
 }
+
+export interface CompanionDailyLog {
+  id: string;
+  client_id: string;
+  log_date: string;
+  checked_item_ids: string[];
+  progress_percent: number;
+  total_items: number;
+  notes?: string | null;
+  created_at: string;
+  updated_at: string;
+}

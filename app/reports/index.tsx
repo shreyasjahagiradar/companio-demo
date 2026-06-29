@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import Card from '@/components/Card';
+import Footer from '@/components/Footer';
 import { colors, spacing, typography, borderRadius } from '@/constants/theme';
 import { FileText, ChevronRight, Calendar, ArrowLeft } from 'lucide-react-native';
 import { supabase } from '@/lib/supabase';
@@ -86,22 +87,21 @@ export default function ReportsListScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()} activeOpacity={0.8}>
-          <ArrowLeft size={20} color={colors.text.primary} />
-        </TouchableOpacity>
-        <View style={styles.headerTextWrap}>
-          <Text style={styles.appName}>MendRx Companion</Text>
-          <Text style={styles.title}>My Reports</Text>
-          <Text style={styles.subtitle}>View your diagnostic files</Text>
-        </View>
-      </View>
-
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()} activeOpacity={0.8}>
+            <ArrowLeft size={20} color={colors.text.primary} />
+          </TouchableOpacity>
+          <View style={styles.headerTextWrap}>
+            <Text style={styles.appName}>MendRx Companion</Text>
+            <Text style={styles.title}>My Reports</Text>
+            <Text style={styles.subtitle}>View your diagnostic files</Text>
+          </View>
+        </View>
         {loading ? (
           <Card style={styles.stateCard}>
             <Text style={styles.loadingText}>Synchronizing reports...</Text>
@@ -149,6 +149,7 @@ export default function ReportsListScreen() {
         )}
 
         <View style={{ height: spacing.xl }} />
+        <Footer />
       </ScrollView>
     </View>
   );
