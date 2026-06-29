@@ -3,28 +3,11 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { View, StyleSheet, Platform, useWindowDimensions } from 'react-native';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
-import { useStore } from '@/store/useStore';
-import { DEMO_CLIENT, DEMO_USER, DEMO_SND_PLAN, DEMO_COMPANION_REPORT } from '@/constants/demoData';
-
-const IS_DEMO = process.env.EXPO_PUBLIC_DEMO_MODE === 'true';
 
 export default function RootLayout() {
   useFrameworkReady();
   const { width } = useWindowDimensions();
   const isLargeScreen = width > 768;
-
-  // Hydrate store with demo data for Vercel previews
-  useEffect(() => {
-    if (!IS_DEMO) return;
-    const store = useStore.getState();
-    // Only hydrate once — don't overwrite if user is already set
-    if (store.client) return;
-    store.setClient(DEMO_CLIENT);
-    store.setUser(DEMO_USER);
-    store.setSndPlan(DEMO_SND_PLAN);
-    store.setCompanionReport(DEMO_COMPANION_REPORT);
-    store.setIsOnboarded(true);
-  }, []);
 
   return (
     <View style={[styles.appContainer, isLargeScreen && styles.appContainerLarge]}>
