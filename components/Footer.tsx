@@ -11,36 +11,29 @@ export default function Footer() {
     <View style={styles.container}>
       <View style={[styles.contentWrapper, isMobile && styles.contentWrapperMobile]}>
         
-        {/* Column 1: Quick Links */}
-        <View style={[styles.column, isMobile && styles.columnMobile]}>
-          <Text style={styles.heading}>Quick Links</Text>
-          <TouchableOpacity><Text style={styles.link}>My Dashboard</Text></TouchableOpacity>
-          <TouchableOpacity><Text style={styles.link}>Daily Log</Text></TouchableOpacity>
-          <TouchableOpacity><Text style={styles.link}>Clinical Reports</Text></TouchableOpacity>
-          <TouchableOpacity><Text style={styles.link}>Diet & Supplements</Text></TouchableOpacity>
-          
-          <TouchableOpacity style={styles.outlineButton}>
-            <ExternalLink size={14} color="#0E2319" style={{ marginRight: 6 }} />
-            <Text style={styles.outlineButtonText}>Patient Portal</Text>
-          </TouchableOpacity>
-        </View>
+        <View style={styles.linksContainer}>
+          {/* Column 1: Quick Links */}
+          <View style={[styles.column, isMobile && styles.columnMobile]}>
+            <Text style={styles.heading}>Quick Links</Text>
+            <TouchableOpacity><Text style={styles.link}>My Dashboard</Text></TouchableOpacity>
+            <TouchableOpacity><Text style={styles.link}>Daily Log</Text></TouchableOpacity>
+            <TouchableOpacity><Text style={styles.link}>Clinical Reports</Text></TouchableOpacity>
+            <TouchableOpacity><Text style={styles.link}>Diet & Supplements</Text></TouchableOpacity>
+            
+            <TouchableOpacity style={styles.outlineButton}>
+              <ExternalLink size={14} color="#0E2319" style={{ marginRight: 6 }} />
+              <Text style={styles.outlineButtonText}>Patient Portal</Text>
+            </TouchableOpacity>
+          </View>
 
-        {/* Column 2: Features */}
-        <View style={[styles.column, isMobile && styles.columnMobile]}>
-          <Text style={styles.heading}>Features</Text>
-          <TouchableOpacity><Text style={styles.link}>Biomarker Tracking</Text></TouchableOpacity>
-          <TouchableOpacity><Text style={styles.link}>Symptom Logging</Text></TouchableOpacity>
-          <TouchableOpacity><Text style={styles.link}>Supplement Guide</Text></TouchableOpacity>
-          <TouchableOpacity><Text style={styles.link}>Health Insights</Text></TouchableOpacity>
-        </View>
-
-        {/* Column 3: Support */}
-        <View style={[styles.column, isMobile && styles.columnMobile]}>
-          <Text style={styles.heading}>Support</Text>
-          <TouchableOpacity><Text style={styles.link}>Contact Practitioner</Text></TouchableOpacity>
-          <TouchableOpacity><Text style={styles.link}>Help Center</Text></TouchableOpacity>
-          <TouchableOpacity><Text style={styles.link}>Privacy Policy</Text></TouchableOpacity>
-          <TouchableOpacity><Text style={styles.link}>Terms of Service</Text></TouchableOpacity>
+          {/* Column 3: Support */}
+          <View style={[styles.column, isMobile && styles.columnMobile]}>
+            <Text style={styles.heading}>Support</Text>
+            <TouchableOpacity><Text style={styles.link}>Contact Practitioner</Text></TouchableOpacity>
+            <TouchableOpacity><Text style={styles.link}>Help Center</Text></TouchableOpacity>
+            <TouchableOpacity><Text style={styles.link}>Privacy Policy</Text></TouchableOpacity>
+            <TouchableOpacity><Text style={styles.link}>Terms of Service</Text></TouchableOpacity>
+          </View>
         </View>
 
         {/* Column 4: Social & Subscribe */}
@@ -88,12 +81,19 @@ const styles = StyleSheet.create({
     gap: 30,
   },
   contentWrapperMobile: {
-    flexDirection: 'column',
     paddingHorizontal: 20,
+    gap: 20,
+  },
+  linksContainer: {
+    flexDirection: 'row',
+    flex: 2,
+    minWidth: '60%',
+    justifyContent: 'space-between',
+    gap: 20,
   },
   column: {
     flex: 1,
-    minWidth: 150,
+    minWidth: 120, // Reduced from 150 to ensure they fit side-by-side
   },
   columnMobile: {
     marginBottom: 20,

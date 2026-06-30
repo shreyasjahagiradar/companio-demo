@@ -63,6 +63,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="report"
         options={{
+          href: null,
           title: 'Report',
           tabBarIcon: ({ color, focused }) => (
             <View style={styles.iconContainer}>
