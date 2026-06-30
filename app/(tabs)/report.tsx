@@ -10,11 +10,13 @@ import { fetchMyReport } from '@/services/companionService';
 import { CompanionReport } from '@/types/types';
 import Card from '@/components/Card';
 import { FileText, AlertCircle } from 'lucide-react-native';
+import { useResponsiveLayout } from '@/hooks/useResponsiveLayout';
 
 export default function ReportScreen() {
   const client = useStore((state) => state.client);
   const [report, setReport] = useState<CompanionReport | null>(null);
   const [loading, setLoading] = useState(true);
+  const { headerPaddingTop, scrollPaddingBottom } = useResponsiveLayout();
 
   useEffect(() => {
     if (client?.id) {
@@ -51,11 +53,11 @@ export default function ReportScreen() {
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollPaddingBottom }]}
       >
         <LinearGradient
           colors={['#1B3B2B', '#0E2319']}
-          style={styles.header}
+          style={[styles.header, { paddingTop: headerPaddingTop }]}
           start={{ x: 0, y: 0 }}
           end={{ x: 0.5, y: 1 }}
         >
@@ -158,7 +160,6 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: spacing.xl,
-    paddingTop: Platform.OS === 'ios' ? 90 + spacing.xl : 70 + spacing.xl,
     paddingBottom: spacing.lg,
     borderBottomLeftRadius: borderRadius.xxl,
     borderBottomRightRadius: borderRadius.xxl,

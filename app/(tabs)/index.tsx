@@ -17,6 +17,7 @@ import ProgressCircle from '@/components/ProgressCircle';
 import { LinearGradient } from 'expo-linear-gradient';
 import Card from '@/components/Card';
 import Footer from '@/components/Footer';
+import { useResponsiveLayout } from '@/hooks/useResponsiveLayout';
 
 const DEMO_USER_ID = '00000000-0000-0000-0000-000000000001';
 
@@ -49,6 +50,7 @@ export default function HomeScreen() {
     streak_count: 3,
   });
   const [loading, setLoading] = useState(true);
+  const { headerPaddingTop, scrollPaddingBottom } = useResponsiveLayout();
 
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -147,15 +149,15 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <ScrollView
+      <ScrollView 
         style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollPaddingBottom }]}
       >
         {/* Welcome Section */}
         <LinearGradient
           colors={['#1B3B2B', '#0E2319']}
-          style={styles.heroHeader}
+          style={[styles.heroHeader, { paddingTop: headerPaddingTop }]}
           start={{ x: 0, y: 0 }}
           end={{ x: 0.5, y: 1 }}
         >
@@ -273,7 +275,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   heroHeader: {
-    paddingTop: Platform.OS === 'ios' ? 90 + spacing.xl : 70 + spacing.xl, // Account for flush top bar
     paddingHorizontal: spacing.xl,
     paddingBottom: spacing.lg,
     borderBottomLeftRadius: borderRadius.xxl,

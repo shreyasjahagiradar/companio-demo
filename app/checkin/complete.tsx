@@ -85,7 +85,7 @@ export default function CompleteScreen() {
       <View style={styles.footer}>
         <TouchableOpacity
           style={styles.primaryBtn}
-          onPress={() => router.push('/(tabs)/progress')}
+          onPress={() => router.replace('/(tabs)/report')}
           activeOpacity={0.85}
         >
           <TrendingUp size={18} color="#FFFFFF" />

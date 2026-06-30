@@ -13,6 +13,8 @@ import BloodPanelSummaryChart from '@/components/BloodPanelSummaryChart';
 import BloodPanelCard from '@/components/BloodPanelCard';
 import NotesCard from '@/components/NotesCard';
 import Footer from '@/components/Footer';
+import { useResponsiveLayout } from '@/hooks/useResponsiveLayout';
+import { getDietCycleDay } from '@/utils/getDietCycleDay';
 
 const TABS = ['Diet', 'Supplements', 'Lifestyle', 'Report'];
 
@@ -74,6 +76,7 @@ export default function PlanScreen() {
   const companionReport = useStore((state) => state.companionReport);
   const setCompanionReport = useStore((state) => state.setCompanionReport);
   const client = useStore((state) => state.client);
+  const { headerPaddingTop, scrollPaddingBottom } = useResponsiveLayout();
   
   // Safely find the diet plan version with the highest versionNumber
   const latestDietPlanVersion = sndPlan?.dietPlanVersions?.reduce((latest, current) => {
@@ -81,8 +84,22 @@ export default function PlanScreen() {
     return (current.versionNumber > latest.versionNumber) ? current : latest;
   }, null as any);
 
-  // Extract the first DayPlan from the latest version
-  const dayPlan = latestDietPlanVersion?.dayPlans?.[0] || null;
+  const allDayPlans = latestDietPlanVersion?.dayPlans ?? [];
+  const totalCycleDays = allDayPlans.length || 1;
+
+  // Compute today's cycle day
+  const todayCycle = getDietCycleDay(sndPlan?.createdAt, new Date(), totalCycleDays);
+  const [selectedDayIndex, setSelectedDayIndex] = useState(todayCycle.index);
+
+  // Keep selectedDayIndex in sync when plan data loads
+  useEffect(() => {
+    if (allDayPlans.length > 0) {
+      const cycle = getDietCycleDay(sndPlan?.createdAt, new Date(), allDayPlans.length);
+      setSelectedDayIndex(cycle.index);
+    }
+  }, [sndPlan?.createdAt, allDayPlans.length]);
+
+  const selectedDayPlan = allDayPlans[selectedDayIndex] ?? allDayPlans[0] ?? null;
   const supplements = sndPlan?.supplements || [];
 
   useEffect(() => {
@@ -106,12 +123,12 @@ export default function PlanScreen() {
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollPaddingBottom }]}
       >
         {/* Header section with gradient highlights */}
         <LinearGradient
           colors={['#1B3B2B', '#0E2319']}
-          style={styles.header}
+          style={[styles.header, { paddingTop: headerPaddingTop }]}
           start={{ x: 0, y: 0 }}
           end={{ x: 0.5, y: 1 }}
         >
@@ -141,7 +158,41 @@ export default function PlanScreen() {
           </View>
         </View>
         {activeTab === 0 && (
-          <MealTimeline dayPlan={dayPlan} readOnly />
+          <>
+            {/* Day Cycle Selector */}
+            {allDayPlans.length > 1 && (
+              <View style={styles.daySelectorOuter}>
+              <View style={styles.daySelectorContainer}>
+                  {allDayPlans.map((_: any, i: number) => {
+                    const isToday = i === todayCycle.index;
+                    const isSelected = i === selectedDayIndex;
+                    return (
+                      <TouchableOpacity
+                        key={i}
+                        style={[
+                          styles.dayPill,
+                          isSelected && styles.dayPillActive,
+                        ]}
+                        onPress={() => setSelectedDayIndex(i)}
+                        activeOpacity={0.7}
+                      >
+                        <Text style={[
+                          styles.dayPillText,
+                          isSelected && styles.dayPillTextActive,
+                        ]}>
+                          {`Day ${i + 1}`}
+                        </Text>
+                        {isToday && (
+                          <View style={styles.todayDot} />
+                        )}
+                      </TouchableOpacity>
+                    );
+                  })}
+              </View>
+              </View>
+            )}
+            <MealTimeline dayPlan={selectedDayPlan} readOnly />
+          </>
         )}
 
         {activeTab === 1 && (
@@ -262,7 +313,6 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: spacing.xl,
-    paddingTop: Platform.OS === 'ios' ? 90 + spacing.xl : 70 + spacing.xl,
     paddingBottom: spacing.lg,
     borderBottomLeftRadius: borderRadius.xxl,
     borderBottomRightRadius: borderRadius.xxl,
@@ -289,7 +339,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   tabOuter: {
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: spacing.sm,
     marginTop: spacing.md,
     marginBottom: spacing.xs,
   },
@@ -299,10 +349,12 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.lg,
     padding: 4,
     gap: 2,
+    width: '100%',
   },
   tab: {
     flex: 1,
     paddingVertical: spacing.sm + 2,
+    paddingHorizontal: 2,
     borderRadius: borderRadius.md,
     alignItems: 'center',
     justifyContent: 'center',
@@ -313,8 +365,10 @@ const styles = StyleSheet.create({
   },
   tabText: {
     ...typography.caption,
+    fontSize: 10, // Reduced to ensure "Supplements" fits without truncation
     color: colors.text.secondary,
     fontWeight: '600',
+    textAlign: 'center',
   },
   tabTextActive: {
     color: colors.primary,
@@ -326,6 +380,43 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.md,
+  },
+  daySelectorOuter: {
+    marginBottom: spacing.sm,
+  },
+  daySelectorContainer: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+    paddingVertical: spacing.xs,
+    justifyContent: 'center',
+  },
+  dayPill: {
+    flex: 1,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.full,
+    backgroundColor: '#EDF1EE',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  dayPillActive: {
+    backgroundColor: colors.primary,
+  },
+  dayPillText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.text.secondary,
+  },
+  dayPillTextActive: {
+    color: colors.white,
+    fontWeight: '700',
+  },
+  todayDot: {
+    position: 'absolute',
+    bottom: 2,
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#A8C7A7',
   },
   timelineContainer: {
     paddingLeft: spacing.xs,

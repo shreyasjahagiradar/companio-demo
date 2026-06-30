@@ -8,6 +8,7 @@ import { colors, spacing, typography, borderRadius, shadows } from '@/constants/
 import { User, FileText, CreditCard, Bell, LogOut, ChevronRight } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useStore } from '@/store/useStore';
+import { useResponsiveLayout } from '@/hooks/useResponsiveLayout';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -15,6 +16,7 @@ export default function ProfileScreen() {
   const companionReport = useStore((state) => state.companionReport);
   const reset = useStore((state) => state.reset);
   const setIsOnboarded = useStore((state) => state.setIsOnboarded);
+  const { headerPaddingTop, scrollPaddingBottom } = useResponsiveLayout();
 
   const userName = user?.name || 'Priya Sharma';
   const initial = userName.charAt(0).toUpperCase();
@@ -46,11 +48,11 @@ export default function ProfileScreen() {
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollPaddingBottom }]}
       >
         <LinearGradient
           colors={['#1B3B2B', '#0E2319']}
-          style={styles.header}
+          style={[styles.header, { paddingTop: headerPaddingTop }]}
           start={{ x: 0, y: 0 }}
           end={{ x: 0.5, y: 1 }}
         >
@@ -150,7 +152,6 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: spacing.xl,
-    paddingTop: Platform.OS === 'ios' ? 90 + spacing.xl : 70 + spacing.xl,
     paddingBottom: spacing.lg,
     borderBottomLeftRadius: borderRadius.xxl,
     borderBottomRightRadius: borderRadius.xxl,

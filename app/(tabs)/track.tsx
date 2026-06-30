@@ -9,6 +9,8 @@ import { Check, Coffee, Pill, Activity, ChevronLeft, ChevronRight } from 'lucide
 import { LinearGradient } from 'expo-linear-gradient';
 import { saveLog, loadLog } from '@/services/logService';
 import Footer from '@/components/Footer';
+import { useResponsiveLayout } from '@/hooks/useResponsiveLayout';
+import { getDietCycleDay } from '@/utils/getDietCycleDay';
 
 /** Format a Date to 'YYYY-MM-DD' for Supabase */
 function toDateString(date: Date): string {
@@ -19,8 +21,9 @@ export default function TrackScreen() {
   const sndPlan = useStore((state) => state.sndPlan);
   const user = useStore((state) => state.user);
   const clientId = user?.id;
+  const [selectedDate, setSelectedDate] = useState(new Date());
   
-  // Extract meals from the latest diet plan version
+  // Extract meals from the correct cycle day based on selectedDate
   const mealItems = useMemo(() => {
     if (!sndPlan?.dietPlanVersions || sndPlan.dietPlanVersions.length === 0) {
       return [
@@ -31,18 +34,23 @@ export default function TrackScreen() {
       ]; // Fallback
     }
     const latestVersion = sndPlan.dietPlanVersions[sndPlan.dietPlanVersions.length - 1];
-    const dayPlan = latestVersion.dayPlans?.[0]; // Default to first day
+    const allDayPlans = latestVersion.dayPlans ?? [];
+    if (allDayPlans.length === 0) return [];
+
+    // Compute which cycle day to use based on selectedDate
+    const { index } = getDietCycleDay(sndPlan.createdAt, selectedDate, allDayPlans.length);
+    const dayPlan = allDayPlans[index] ?? allDayPlans[0];
     if (!dayPlan) return [];
     
     const items = [];
-    if (dayPlan.preMorning) items.push({ id: 'dp1', label: `Pre-Morning: ${dayPlan.preMorning}`, type: 'meal' });
-    if (dayPlan.morning) items.push({ id: 'dp2', label: `Breakfast: ${dayPlan.morning}`, type: 'meal' });
-    if (dayPlan.midMorning) items.push({ id: 'dp3', label: `Mid-Morning: ${dayPlan.midMorning}`, type: 'meal' });
-    if (dayPlan.lunch) items.push({ id: 'dp4', label: `Lunch: ${dayPlan.lunch}`, type: 'meal' });
-    if (dayPlan.earlyEvening) items.push({ id: 'dp5', label: `Evening: ${dayPlan.earlyEvening}`, type: 'meal' });
-    if (dayPlan.night) items.push({ id: 'dp6', label: `Dinner: ${dayPlan.night}`, type: 'meal' });
+    if (dayPlan.preMorning) items.push({ id: `dp1-d${index}`, label: `Pre-Morning: ${dayPlan.preMorning}`, type: 'meal' });
+    if (dayPlan.morning) items.push({ id: `dp2-d${index}`, label: `Breakfast: ${dayPlan.morning}`, type: 'meal' });
+    if (dayPlan.midMorning) items.push({ id: `dp3-d${index}`, label: `Mid-Morning: ${dayPlan.midMorning}`, type: 'meal' });
+    if (dayPlan.lunch) items.push({ id: `dp4-d${index}`, label: `Lunch: ${dayPlan.lunch}`, type: 'meal' });
+    if (dayPlan.earlyEvening) items.push({ id: `dp5-d${index}`, label: `Evening: ${dayPlan.earlyEvening}`, type: 'meal' });
+    if (dayPlan.night) items.push({ id: `dp6-d${index}`, label: `Dinner: ${dayPlan.night}`, type: 'meal' });
     return items;
-  }, [sndPlan]);
+  }, [sndPlan, selectedDate]);
 
   // Extract supplements
   const supplementItems = useMemo(() => {
@@ -69,11 +77,11 @@ export default function TrackScreen() {
 
   const allItems = [...mealItems, ...supplementItems, ...activityItems];
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
-  const [selectedDate, setSelectedDate] = useState(new Date());
   const [isDatePickerVisible, setDatePickerVisible] = useState(false);
   const [loadingLog, setLoadingLog] = useState(false);
   const [saving, setSaving] = useState(false);
   const [hasSavedLog, setHasSavedLog] = useState(false);
+  const { headerPaddingTop, scrollPaddingBottom } = useResponsiveLayout();
 
   // Load saved log when date changes or on mount
   const fetchLogForDate = useCallback(async (date: Date) => {
@@ -204,12 +212,13 @@ export default function TrackScreen() {
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: scrollPaddingBottom }}
         stickyHeaderIndices={[1]}
       >
         {/* Index 0: Header Top */}
         <LinearGradient
           colors={['#1B3B2B', '#132D21']}
-          style={styles.headerTopHalf}
+          style={[styles.headerTopHalf, { paddingTop: headerPaddingTop }]}
           start={{ x: 0, y: 0 }}
           end={{ x: 0.5, y: 1 }}
         >
@@ -348,7 +357,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
-    paddingTop: Platform.OS === 'ios' ? 90 : 70, // Offset for the absolute top TabBar
   },
   headerTopHalf: {
     paddingHorizontal: spacing.xl,

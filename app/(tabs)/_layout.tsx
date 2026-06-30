@@ -1,5 +1,5 @@
 import { Tabs, Redirect } from 'expo-router';
-import { View, StyleSheet, Platform } from 'react-native';
+import { View, StyleSheet, Platform, useWindowDimensions } from 'react-native';
 import { House, ChartLine, CalendarDays, CircleUserRound, ClipboardList, FileText } from 'lucide-react-native';
 import { colors, borderRadius, shadows, spacing } from '@/constants/theme';
 import { useStore } from '@/store/useStore';
@@ -11,13 +11,27 @@ export default function TabLayout() {
     return <Redirect href="/" />;
   }
 
+  const { width } = useWindowDimensions();
+  const isMobile = width <= 768;
+
+  const dynamicTabBarStyle = {
+    ...styles.tabBar,
+    top: isMobile ? undefined : 0,
+    bottom: isMobile ? 0 : undefined,
+    borderBottomWidth: isMobile ? 0 : 1,
+    borderTopWidth: isMobile ? 1 : 0,
+    height: Platform.OS === 'ios' ? 90 : 70,
+    paddingTop: !isMobile && Platform.OS === 'ios' ? 40 : 0,
+    paddingBottom: isMobile && Platform.OS === 'ios' ? 20 : 0,
+  };
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.text.light,
-        tabBarStyle: styles.tabBar,
+        tabBarStyle: dynamicTabBarStyle,
         tabBarLabelStyle: styles.tabBarLabel,
         tabBarItemStyle: styles.tabBarItem,
       }}
@@ -93,11 +107,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: '#ffffff', // Solid white
-    borderBottomWidth: 1,
-    borderTopWidth: 0,
-    height: Platform.OS === 'ios' ? 90 : 70, // Standard top bar height (account for notch)
-    paddingTop: Platform.OS === 'ios' ? 40 : 0, // Safe area
-    paddingBottom: 0,
     borderWidth: 0, // Remove side borders
     borderColor: '#E9EDE9',
     ...shadows.sm,
@@ -108,7 +117,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     letterSpacing: 0.2,
-    marginTop: 4,
+    marginTop: 12,
     marginBottom: 2,
   },
   tabBarItem: {
