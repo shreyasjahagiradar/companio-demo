@@ -69,69 +69,69 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#0E2319', // MendRx Dark Green Theme
     width: '100%',
-    paddingTop: 40,
-    marginTop: 20, // Reduced from 40 for smoother integration
+    paddingTop: 16, 
+    marginTop: 10, 
   },
   contentWrapper: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: '10%',
-    paddingBottom: 40,
+    paddingBottom: 16, 
     flexWrap: 'wrap',
-    gap: 30,
+    gap: 16, 
   },
   contentWrapperMobile: {
-    paddingHorizontal: 20,
-    gap: 20,
+    paddingHorizontal: 16,
+    gap: 16,
   },
   linksContainer: {
     flexDirection: 'row',
     flex: 2,
     minWidth: '60%',
     justifyContent: 'space-between',
-    gap: 20,
+    gap: 12,
   },
   column: {
     flex: 1,
     minWidth: 120, // Reduced from 150 to ensure they fit side-by-side
   },
   columnMobile: {
-    marginBottom: 20,
+    marginBottom: 12,
   },
   rightColumn: {
     alignItems: 'flex-start',
   },
   heading: {
     color: colors.white,
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '700',
-    marginBottom: 20,
+    marginBottom: 8, 
     letterSpacing: 0.5,
   },
   link: {
     color: '#8A9A86', // MendRx Sage Green
-    fontSize: 14,
-    marginBottom: 12,
+    fontSize: 13,
+    marginBottom: 4, 
   },
   outlineButton: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#C6EE34', // MendRx Lime Accent
-    paddingVertical: 10,
-    paddingHorizontal: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
     borderRadius: 6,
-    marginTop: 10,
+    marginTop: 6,
     alignSelf: 'flex-start',
   },
   outlineButtonText: {
     color: '#0E2319',
     fontWeight: '700',
-    fontSize: 14,
+    fontSize: 13,
   },
   socialRow: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: 24,
+    gap: 10,
+    marginBottom: 12, 
   },
   socialIcon: {
     width: 32,
@@ -145,8 +145,8 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     backgroundColor: colors.primary, // MendRx Green
-    paddingVertical: 10,
-    paddingHorizontal: 24,
+    paddingVertical: 8,
+    paddingHorizontal: 20,
     borderRadius: 6,
     borderWidth: 1,
     borderColor: '#304D3C',
@@ -154,12 +154,12 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     color: colors.white,
     fontWeight: '600',
-    fontSize: 14,
+    fontSize: 13,
   },
   bottomBar: {
     borderTopWidth: 1,
     borderTopColor: '#304D3C',
-    paddingVertical: 16,
+    paddingVertical: 10, 
     alignItems: 'center',
     marginHorizontal: '5%',
   },

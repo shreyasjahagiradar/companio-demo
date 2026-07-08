@@ -76,7 +76,7 @@ export default function PlanScreen() {
   const companionReport = useStore((state) => state.companionReport);
   const setCompanionReport = useStore((state) => state.setCompanionReport);
   const client = useStore((state) => state.client);
-  const { headerPaddingTop, scrollPaddingBottom } = useResponsiveLayout();
+  const { headerPaddingTop, scrollPaddingBottom, contentPaddingHorizontal } = useResponsiveLayout();
   
   // Safely find the diet plan version with the highest versionNumber
   const latestDietPlanVersion = sndPlan?.dietPlanVersions?.reduce((latest, current) => {
@@ -105,12 +105,11 @@ export default function PlanScreen() {
   useEffect(() => {
     async function loadPlan() {
       if (!client) return;
-      const identifier = client.phone_number || client.name;
-      const plan = await fetchMyPlan(identifier);
+      const plan = await fetchMyPlan();
       if (plan) {
         setSndPlan(plan);
       }
-      const report = await fetchMyReport(identifier);
+      const report = await fetchMyReport();
       if (report) {
         setCompanionReport(report);
       }
@@ -123,12 +122,12 @@ export default function PlanScreen() {
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollPaddingBottom }]}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollPaddingBottom, paddingHorizontal: contentPaddingHorizontal }]}
       >
         {/* Header section with gradient highlights */}
         <LinearGradient
           colors={['#1B3B2B', '#0E2319']}
-          style={[styles.header, { paddingTop: headerPaddingTop }]}
+          style={[styles.header, { paddingTop: headerPaddingTop, paddingHorizontal: contentPaddingHorizontal }]}
           start={{ x: 0, y: 0 }}
           end={{ x: 0.5, y: 1 }}
         >

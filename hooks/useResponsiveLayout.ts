@@ -13,9 +13,12 @@ export function useResponsiveLayout() {
     ? (Platform.OS === 'ios' ? 110 : 90) // Room for bottom tab bar
     : spacing.xl;
 
+  const contentPaddingHorizontal = isMobile ? spacing.md : spacing.xl;
+
   return {
     isMobile,
     headerPaddingTop,
     scrollPaddingBottom,
+    contentPaddingHorizontal,
   };
 }

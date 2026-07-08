@@ -16,7 +16,7 @@ export default function ProfileScreen() {
   const companionReport = useStore((state) => state.companionReport);
   const reset = useStore((state) => state.reset);
   const setIsOnboarded = useStore((state) => state.setIsOnboarded);
-  const { headerPaddingTop, scrollPaddingBottom } = useResponsiveLayout();
+  const { headerPaddingTop, scrollPaddingBottom, contentPaddingHorizontal } = useResponsiveLayout();
 
   const userName = user?.name || 'Priya Sharma';
   const initial = userName.charAt(0).toUpperCase();
@@ -48,11 +48,11 @@ export default function ProfileScreen() {
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollPaddingBottom }]}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollPaddingBottom, paddingHorizontal: contentPaddingHorizontal }]}
       >
         <LinearGradient
           colors={['#1B3B2B', '#0E2319']}
-          style={[styles.header, { paddingTop: headerPaddingTop }]}
+          style={[styles.header, { paddingTop: headerPaddingTop, paddingHorizontal: contentPaddingHorizontal }]}
           start={{ x: 0, y: 0 }}
           end={{ x: 0.5, y: 1 }}
         >

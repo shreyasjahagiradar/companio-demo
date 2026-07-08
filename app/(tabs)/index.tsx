@@ -50,7 +50,7 @@ export default function HomeScreen() {
     streak_count: 3,
   });
   const [loading, setLoading] = useState(true);
-  const { headerPaddingTop, scrollPaddingBottom } = useResponsiveLayout();
+  const { isMobile, headerPaddingTop, scrollPaddingBottom, contentPaddingHorizontal } = useResponsiveLayout();
 
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -157,7 +157,7 @@ export default function HomeScreen() {
         {/* Welcome Section */}
         <LinearGradient
           colors={['#1B3B2B', '#0E2319']}
-          style={[styles.heroHeader, { paddingTop: headerPaddingTop }]}
+          style={[styles.heroHeader, { paddingTop: headerPaddingTop, paddingHorizontal: contentPaddingHorizontal }]}
           start={{ x: 0, y: 0 }}
           end={{ x: 0.5, y: 1 }}
         >
@@ -194,7 +194,7 @@ export default function HomeScreen() {
           </Card>
         </LinearGradient>
 
-        <Animated.View style={{ opacity: fadeAnim, paddingHorizontal: spacing.xl, paddingTop: spacing.md }}>
+        <Animated.View style={{ opacity: fadeAnim, paddingHorizontal: contentPaddingHorizontal, paddingTop: spacing.md }}>
           {allDone && (
             <View style={styles.completeBanner}>
               <CheckCircle size={18} color={colors.success} />

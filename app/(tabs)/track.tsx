@@ -81,7 +81,7 @@ export default function TrackScreen() {
   const [loadingLog, setLoadingLog] = useState(false);
   const [saving, setSaving] = useState(false);
   const [hasSavedLog, setHasSavedLog] = useState(false);
-  const { headerPaddingTop, scrollPaddingBottom } = useResponsiveLayout();
+  const { isMobile, headerPaddingTop, scrollPaddingBottom, contentPaddingHorizontal } = useResponsiveLayout();
 
   // Load saved log when date changes or on mount
   const fetchLogForDate = useCallback(async (date: Date) => {
@@ -176,7 +176,7 @@ export default function TrackScreen() {
   if (submitted) {
     return (
       <View style={styles.container}>
-        <View style={styles.successContainer}>
+        <View style={[styles.successContainer, { paddingHorizontal: contentPaddingHorizontal }]}>
           <View style={styles.successIcon}>
             <Check size={48} color={colors.primary} strokeWidth={3} />
           </View>
@@ -218,7 +218,7 @@ export default function TrackScreen() {
         {/* Index 0: Header Top */}
         <LinearGradient
           colors={['#1B3B2B', '#132D21']}
-          style={[styles.headerTopHalf, { paddingTop: headerPaddingTop }]}
+          style={[styles.headerTopHalf, { paddingTop: headerPaddingTop, paddingHorizontal: contentPaddingHorizontal }]}
           start={{ x: 0, y: 0 }}
           end={{ x: 0.5, y: 1 }}
         >
@@ -252,7 +252,7 @@ export default function TrackScreen() {
         <View style={styles.stickyContainer}>
           <LinearGradient
             colors={['#132D21', '#0E2319']}
-            style={styles.headerBottomHalf}
+            style={[styles.headerBottomHalf, { paddingHorizontal: contentPaddingHorizontal }]}
           >
             <View style={styles.progressContainer}>
               <View style={styles.progressHeader}>
@@ -270,7 +270,7 @@ export default function TrackScreen() {
         </View>
 
         {/* Index 2: Content */}
-        <View style={styles.scrollContent}>
+        <View style={[styles.scrollContent, { paddingHorizontal: contentPaddingHorizontal }]}>
           {loadingLog ? (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', minHeight: 300 }}>
               <ActivityIndicator size="large" color={colors.primary} />
@@ -315,21 +315,26 @@ export default function TrackScreen() {
             </Card>
             
             <View style={styles.actionContainer}>
-              <Button
-                title="Uncheck all"
-                onPress={handleUncheckAll}
-                size="medium"
-                variant="outline"
-                disabled={saving || checkedIds.size === 0}
-                style={{ marginRight: spacing.sm }}
-              />
-              <Button
-                title={saving ? 'Saving...' : hasSavedLog ? 'Update Log' : "Save Today's Log"}
-                onPress={handleSubmit}
-                size="medium"
-                disabled={saving}
-                loading={saving}
-              />
+              <View style={{ flex: 1 }}>
+                <Button
+                  title="Uncheck all"
+                  onPress={handleUncheckAll}
+                  size="medium"
+                  variant="outline"
+                  disabled={saving || checkedIds.size === 0}
+                  style={{ height: 56 }}
+                />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Button
+                  title={saving ? 'Saving...' : hasSavedLog ? 'Update Log' : 'Save Log'}
+                  onPress={handleSubmit}
+                  size="medium"
+                  disabled={saving}
+                  loading={saving}
+                  style={{ height: 56 }}
+                />
+              </View>
             </View>
             
             <View style={{ height: spacing.xxl * 2 }} />
@@ -493,10 +498,10 @@ const styles = StyleSheet.create({
   },
   actionContainer: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    paddingHorizontal: spacing.xl,
+    justifyContent: 'space-between',
     paddingTop: spacing.md,
     paddingBottom: spacing.lg,
+    gap: spacing.sm,
   },
   cardBody: {
     paddingVertical: spacing.sm,

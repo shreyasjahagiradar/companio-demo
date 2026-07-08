@@ -16,7 +16,7 @@ export default function ReportScreen() {
   const client = useStore((state) => state.client);
   const [report, setReport] = useState<CompanionReport | null>(null);
   const [loading, setLoading] = useState(true);
-  const { headerPaddingTop, scrollPaddingBottom } = useResponsiveLayout();
+  const { headerPaddingTop, scrollPaddingBottom, contentPaddingHorizontal } = useResponsiveLayout();
 
   useEffect(() => {
     if (client?.id) {
@@ -53,11 +53,11 @@ export default function ReportScreen() {
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollPaddingBottom }]}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollPaddingBottom, paddingHorizontal: contentPaddingHorizontal }]}
       >
         <LinearGradient
           colors={['#1B3B2B', '#0E2319']}
-          style={[styles.header, { paddingTop: headerPaddingTop }]}
+          style={[styles.header, { paddingTop: headerPaddingTop, paddingHorizontal: contentPaddingHorizontal }]}
           start={{ x: 0, y: 0 }}
           end={{ x: 0.5, y: 1 }}
         >

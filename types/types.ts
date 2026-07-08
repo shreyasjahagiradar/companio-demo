@@ -8,7 +8,9 @@ export interface Client {
   id: string;
   name: string;
   gender: string;
-  phone_number: string;
+  phoneNumber: string;
+  birthMonth: string;
+  email: string;
 }
 
 export interface Report {

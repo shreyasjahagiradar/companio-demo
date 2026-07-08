@@ -1,8 +1,38 @@
-import { SndPlan, CompanionReport } from '@/types/types';
+import { Client, SndPlan, CompanionReport } from '@/types/types';
 import { supabase } from '@/lib/supabase';
 import { Platform } from 'react-native';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || (Platform.OS === 'android' ? 'http://10.0.2.2:8080' : 'http://localhost:8080');
+
+export async function fetchMyProfile(): Promise<Client | null> {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session?.access_token) {
+      throw new Error('Please sign in to continue.');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/companion/me`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      cache: 'no-store',
+    });
+
+    const responseJson = await response.json();
+
+    if (!response.ok) {
+      throw new Error(responseJson?.message || 'Could not find a linked client profile.');
+    }
+
+    return responseJson.data as Client;
+  } catch (error) {
+    console.error('[CompanionService] Error in fetchMyProfile:', error);
+    throw error;
+  }
+}
 
 export async function fetchMyPlan(identifier?: string): Promise<SndPlan | null> {
   try {
