@@ -17,6 +17,13 @@ function toDateString(date: Date): string {
   return date.toISOString().split('T')[0];
 }
 
+const parseMealItems = (value: string | null | undefined): string[] => {
+  if (!value || value.trim() === '') return [];
+  const lines = value.split(/\n/).map((l) => l.trim()).filter(Boolean);
+  if (lines.length > 1) return lines;
+  return value.split(',').map((l) => l.trim()).filter(Boolean);
+};
+
 export default function TrackScreen() {
   const sndPlan = useStore((state) => state.sndPlan);
   const user = useStore((state) => state.user);
@@ -26,12 +33,7 @@ export default function TrackScreen() {
   // Extract meals from the correct cycle day based on selectedDate
   const mealItems = useMemo(() => {
     if (!sndPlan?.dietPlanVersions || sndPlan.dietPlanVersions.length === 0) {
-      return [
-        { id: 'm1', label: 'Pre-Morning: Warm Water + Lemon', type: 'meal' },
-        { id: 'm2', label: 'Breakfast: Oats & Berries', type: 'meal' },
-        { id: 'm3', label: 'Lunch: Quinoa Salad', type: 'meal' },
-        { id: 'm4', label: 'Dinner: Grilled Salmon', type: 'meal' },
-      ]; // Fallback
+      return [];
     }
     const latestVersion = sndPlan.dietPlanVersions[sndPlan.dietPlanVersions.length - 1];
     const allDayPlans = latestVersion.dayPlans ?? [];
@@ -42,24 +44,43 @@ export default function TrackScreen() {
     const dayPlan = allDayPlans[index] ?? allDayPlans[0];
     if (!dayPlan) return [];
     
-    const items = [];
-    if (dayPlan.preMorning) items.push({ id: `dp1-d${index}`, label: `Pre-Morning: ${dayPlan.preMorning}`, type: 'meal' });
-    if (dayPlan.morning) items.push({ id: `dp2-d${index}`, label: `Breakfast: ${dayPlan.morning}`, type: 'meal' });
-    if (dayPlan.midMorning) items.push({ id: `dp3-d${index}`, label: `Mid-Morning: ${dayPlan.midMorning}`, type: 'meal' });
-    if (dayPlan.lunch) items.push({ id: `dp4-d${index}`, label: `Lunch: ${dayPlan.lunch}`, type: 'meal' });
-    if (dayPlan.earlyEvening) items.push({ id: `dp5-d${index}`, label: `Evening: ${dayPlan.earlyEvening}`, type: 'meal' });
-    if (dayPlan.night) items.push({ id: `dp6-d${index}`, label: `Dinner: ${dayPlan.night}`, type: 'meal' });
+    const items: any[] = [];
+    const isConsolidated = allDayPlans.length === 1;
+
+    const addSlot = (slotKey: string, slotName: string, slotValue: string | undefined | null) => {
+      if (!slotValue) return;
+      
+      const parsed = parseMealItems(slotValue);
+      if (isConsolidated && parsed.length > 1) {
+        parsed.forEach((opt, idx) => {
+          // Clean up numbering (e.g. "1. Option" -> "Option") if it exists, for cleaner display, or just keep it
+          const cleanOpt = opt.replace(/^\d+\.\s*/, '');
+          items.push({
+            id: `dp-${slotKey}-opt${idx}-d${index}`,
+            label: `${slotName} (Option ${idx + 1}): ${cleanOpt}`,
+            type: 'meal',
+            groupId: `dp-${slotKey}-group`
+          });
+        });
+      } else {
+        items.push({ id: `dp-${slotKey}-d${index}`, label: `${slotName}: ${slotValue}`, type: 'meal' });
+      }
+    };
+
+    addSlot('preMorning', 'Pre-Morning', dayPlan.preMorning);
+    addSlot('morning', 'Breakfast', dayPlan.morning);
+    addSlot('midMorning', 'Mid-Morning', dayPlan.midMorning);
+    addSlot('lunch', 'Lunch', dayPlan.lunch);
+    addSlot('earlyEvening', 'Evening', dayPlan.earlyEvening);
+    addSlot('night', 'Dinner', dayPlan.night);
+    
     return items;
   }, [sndPlan, selectedDate]);
 
   // Extract supplements
   const supplementItems = useMemo(() => {
     if (!sndPlan?.supplements || sndPlan.supplements.length === 0) {
-      return [
-        { id: 's1', label: 'Vitamin D3 (1 capsule - Morning)', type: 'supplement' },
-        { id: 's2', label: 'Omega 3 (1 capsule - Lunch)', type: 'supplement' },
-        { id: 's3', label: 'Magnesium (1 tablet - Night)', type: 'supplement' },
-      ]; // Fallback
+      return [];
     }
     return sndPlan.supplements.map(s => ({
       id: s.id,
@@ -127,10 +148,16 @@ export default function TrackScreen() {
   const dateLabel = isToday ? 'Today' : selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
   const toggleCheck = (id: string) => {
+    const item = allItems.find(i => i.id === id);
     const newChecked = new Set(checkedIds);
     if (newChecked.has(id)) {
       newChecked.delete(id);
     } else {
+      if (item && item.groupId) {
+        allItems
+          .filter(i => i.groupId === item.groupId && i.id !== id)
+          .forEach(i => newChecked.delete(i.id));
+      }
       newChecked.add(id);
     }
     setCheckedIds(newChecked);
