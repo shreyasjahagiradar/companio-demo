@@ -51,7 +51,7 @@ export default function LoginScreen() {
 
   const normalizedEmail = email.trim().toLowerCase();
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail);
-  const isValid = otpSent ? otp.trim().length >= 4 : isEmailValid;
+  const isValid = otpSent ? otp.trim().length >= 8 : isEmailValid;
 
   const calculateAge = (birthMonth?: string) => {
     if (!birthMonth || !birthMonth.includes('-')) return undefined;
@@ -143,7 +143,7 @@ export default function LoginScreen() {
           if (elapsed >= OTP_EXPIRY_MS) {
             message = 'Your OTP has expired. Please request a new one.';
           } else {
-            message = 'Incorrect OTP. Please double-check the 6-digit code.';
+            message = 'Incorrect OTP. Please double-check the 8-digit code.';
           }
         } else {
           message = msg;
@@ -179,7 +179,7 @@ export default function LoginScreen() {
             <Text style={styles.title}>{otpSent ? 'Verify your email' : "Let's find your profile"}</Text>
             <Text style={styles.subtitle}>
               {otpSent
-                ? `Enter the 6-digit code sent to ${normalizedEmail}.`
+                ? `Enter the 8-digit code sent to ${normalizedEmail}.`
                 : 'Use the email your practitioner added while onboarding your profile.'}
             </Text>
           </View>
@@ -206,11 +206,11 @@ export default function LoginScreen() {
                   label="One-time code"
                   value={otp}
                   onChangeText={(text) => { setOtp(text.replace(/\s/g, '')); setError(''); }}
-                  placeholder="Enter 6-digit code"
+                  placeholder="Enter 8-digit code"
                   editable={!loading}
                   autoCapitalize="none"
                   keyboardType="number-pad"
-                  maxLength={6}
+                  maxLength={8}
                 />
                 <TouchableOpacity
                   style={[styles.resendRow, (resendCooldown > 0 || loading) && styles.resendDisabled]}
