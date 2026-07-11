@@ -66,7 +66,6 @@ export default function LoginScreen() {
   const sendOtp = async (emailAddr: string) => {
     const { error: otpError } = await supabase.auth.signInWithOtp({
       email: emailAddr,
-      options: { shouldCreateUser: false },
     });
     if (otpError) {
       if (otpError.status === 429) {
@@ -92,7 +91,7 @@ export default function LoginScreen() {
       const { data, error: verifyError } = await supabase.auth.verifyOtp({
         email: normalizedEmail,
         token: otp.trim(),
-        type: 'email',
+        type: 'magiclink',
       });
 
       console.log('[Login] verifyOtp data:', JSON.stringify(data));
