@@ -29,9 +29,10 @@ const parseMealItems = (value: string | null | undefined): string[] => {
 interface MealTimelineProps {
   dayPlan: DayPlan | null;
   readOnly?: boolean;
+  isConsolidated?: boolean;
 }
 
-export default function MealTimeline({ dayPlan, readOnly = false }: MealTimelineProps) {
+export default function MealTimeline({ dayPlan, readOnly = false, isConsolidated = false }: MealTimelineProps) {
   // Interactive state to check off meals eaten visually (even if read-only, checking off locally can feel nice, but we respect readOnly)
   const [completedMeals, setCompletedMeals] = useState<Record<string, boolean>>({});
 
@@ -74,6 +75,13 @@ export default function MealTimeline({ dayPlan, readOnly = false }: MealTimeline
 
   return (
     <View style={styles.timelineContainer}>
+      {isConsolidated && (
+        <View style={styles.consolidatedTipWrapper}>
+          <Text style={styles.consolidatedTip}>
+            💡 Note: Select any one option for each meal from the list below.
+          </Text>
+        </View>
+      )}
       {MEAL_SLOTS.map((slot, index) => {
         const Icon = slot.icon;
         const items = parseMealItems(dayPlan[slot.key as keyof DayPlan] as string);
@@ -117,14 +125,20 @@ export default function MealTimeline({ dayPlan, readOnly = false }: MealTimeline
                   <Icon size={20} color={isCompleted ? colors.success : colors.primary} />
                 </View>
                 <View style={styles.mealItems}>
-                  {items.map((item, idx) => (
-                    <View key={idx} style={styles.mealItem}>
-                      <Text style={styles.bullet}>•</Text>
-                      <Text style={[styles.mealItemText, isCompleted && styles.mealItemTextComplete]}>
-                        {item}
-                      </Text>
-                    </View>
-                  ))}
+                  {items.map((item, idx) => {
+                    const displayItem = (isConsolidated && items.length > 1) 
+                      ? `Option ${idx + 1}: ${item.replace(/^\d+\.\s*/, '')}` 
+                      : item;
+                      
+                    return (
+                      <View key={idx} style={styles.mealItem}>
+                        <Text style={styles.bullet}>•</Text>
+                        <Text style={[styles.mealItemText, isCompleted && styles.mealItemTextComplete]}>
+                          {displayItem}
+                        </Text>
+                      </View>
+                    );
+                  })}
                 </View>
               </Card>
             </TouchableOpacity>
@@ -264,6 +278,18 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.text.secondary,
     textAlign: 'center',
-    lineHeight: 22,
+    paddingHorizontal: spacing.xl,
   },
+  consolidatedTipWrapper: {
+    backgroundColor: 'rgba(40, 125, 75, 0.08)',
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    marginBottom: spacing.md,
+    marginLeft: 28,
+  },
+  consolidatedTip: {
+    ...typography.caption,
+    color: colors.primary,
+    fontWeight: '600',
+  }
 });

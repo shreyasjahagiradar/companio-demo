@@ -97,7 +97,7 @@ export default function ReportsListScreen() {
             <ArrowLeft size={20} color={colors.text.primary} />
           </TouchableOpacity>
           <View style={styles.headerTextWrap}>
-            <Text style={styles.appName}>MendRx Companion</Text>
+            <Text style={styles.appName}>MendRx Companio</Text>
             <Text style={styles.title}>My Reports</Text>
             <Text style={styles.subtitle}>View your diagnostic files</Text>
           </View>

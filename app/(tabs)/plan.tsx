@@ -190,7 +190,7 @@ export default function PlanScreen() {
               </View>
               </View>
             )}
-            <MealTimeline dayPlan={selectedDayPlan} readOnly />
+            <MealTimeline dayPlan={selectedDayPlan} readOnly isConsolidated={allDayPlans.length === 1} />
           </>
         )}
 

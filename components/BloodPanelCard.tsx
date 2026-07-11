@@ -111,22 +111,6 @@ export default function BloodPanelCard({ panelName, markers }: BloodPanelCardPro
                 </View>
               </View>
 
-              {marker.reason && (
-                <View style={styles.reasonBox}>
-                  <View style={styles.reasonHeader}>
-                    <Info size={14} color={colors.primary} />
-                    <Text style={styles.reasonTitle}>Possible Reasons</Text>
-                  </View>
-                  <View style={styles.reasonList}>
-                    {marker.reason.split(/(?<=\.)\s+/).filter(r => r.trim()).map((reason, idx) => (
-                      <View key={idx} style={styles.reasonBulletRow}>
-                        <View style={styles.bulletPoint} />
-                        <Text style={styles.reasonText}>{reason.trim()}</Text>
-                      </View>
-                    ))}
-                  </View>
-                </View>
-              )}
             </View>
           ))}
         </View>

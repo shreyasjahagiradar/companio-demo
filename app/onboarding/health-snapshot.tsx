@@ -39,7 +39,7 @@ export default function HealthSnapshotScreen() {
         contentContainerStyle={styles.scrollContent}
       >
         <View style={styles.header}>
-          <Text style={styles.brandName}>MendRx Companion</Text>
+          <Text style={styles.brandName}>MendRx Companio</Text>
           <Text style={styles.title}>Your Health Snapshot</Text>
           <Text style={styles.subtitle}>
             Practitioner-analyzed diagnostic summary & target protocols.

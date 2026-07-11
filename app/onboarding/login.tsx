@@ -189,7 +189,7 @@ export default function LoginScreen() {
               loading={loading}
               style={styles.button}
             />
-            {otpSent ? (
+            {otpSent && !loading ? (
               <Button
                 title="Use a different email"
                 onPress={() => {

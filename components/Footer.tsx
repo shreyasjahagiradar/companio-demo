@@ -59,7 +59,7 @@ export default function Footer() {
 
       {/* Bottom Bar */}
       <View style={styles.bottomBar}>
-        <Text style={styles.copyright}>© {new Date().getFullYear()} | MendRx Companion</Text>
+        <Text style={styles.copyright}>© {new Date().getFullYear()} | MendRx Companio</Text>
       </View>
     </View>
   );

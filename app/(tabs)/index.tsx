@@ -163,7 +163,7 @@ export default function HomeScreen() {
         >
           <View style={styles.headerTop}>
             <View>
-              <Text style={styles.appName}>MendRx Companion</Text>
+              <Text style={styles.appName}>MendRx Companio</Text>
               <Text style={styles.greeting}>
                 {getGreeting()},{'\n'}
                 <Text style={styles.userName}>{userName}</Text>

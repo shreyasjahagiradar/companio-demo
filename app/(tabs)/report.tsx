@@ -61,7 +61,7 @@ export default function ReportScreen() {
           start={{ x: 0, y: 0 }}
           end={{ x: 0.5, y: 1 }}
         >
-          <Text style={styles.appName}>MendRx Companion</Text>
+          <Text style={styles.appName}>MendRx Companio</Text>
           <Text style={styles.title}>Your Health Report</Text>
           <Text style={styles.subtitle}>
             {loading ? 'Loading...' : report ? `Analysis from ${formatDate(report.reportDate)}` : 'No report available'}
