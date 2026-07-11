@@ -27,6 +27,7 @@ export default function LoginScreen() {
   const [resendCooldown, setResendCooldown] = useState(0);
   const [otpSentAt, setOtpSentAt] = useState<number | null>(null);
   const cooldownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const inFlightRef = useRef(false);
 
   const OTP_EXPIRY_MS = 60 * 60 * 1000; // 1 hour (matches Supabase default)
 
@@ -78,7 +79,8 @@ export default function LoginScreen() {
   };
 
   const handleContinue = async () => {
-    if (!isValid) return;
+    if (!isValid || inFlightRef.current) return;
+    inFlightRef.current = true;
     setLoading(true);
     setError('');
     try {
@@ -151,11 +153,13 @@ export default function LoginScreen() {
       setError(message);
     } finally {
       setLoading(false);
+      inFlightRef.current = false;
     }
   };
 
   const handleResendOtp = async () => {
-    if (resendCooldown > 0 || loading) return;
+    if (resendCooldown > 0 || loading || inFlightRef.current) return;
+    inFlightRef.current = true;
     setLoading(true);
     setError('');
     setOtp('');
@@ -166,6 +170,7 @@ export default function LoginScreen() {
       setError(message);
     } finally {
       setLoading(false);
+      inFlightRef.current = false;
     }
   };
 
