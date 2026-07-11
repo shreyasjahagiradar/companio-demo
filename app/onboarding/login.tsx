@@ -51,7 +51,7 @@ export default function LoginScreen() {
 
   const normalizedEmail = email.trim().toLowerCase();
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail);
-  const isValid = otpSent ? otp.trim().length >= 8 : isEmailValid;
+  const isValid = otpSent ? /^\d{8}$/.test(otp.trim()) : isEmailValid;
 
   const calculateAge = (birthMonth?: string) => {
     if (!birthMonth || !birthMonth.includes('-')) return undefined;
@@ -91,7 +91,7 @@ export default function LoginScreen() {
       const { data, error: verifyError } = await supabase.auth.verifyOtp({
         email: normalizedEmail,
         token: otp.trim(),
-        type: 'magiclink',
+        type: 'email',
       });
 
       console.log('[Login] verifyOtp data:', JSON.stringify(data));
