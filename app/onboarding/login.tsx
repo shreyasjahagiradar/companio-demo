@@ -51,9 +51,15 @@ export default function LoginScreen() {
       if (!otpSent) {
         const { error: otpError } = await supabase.auth.signInWithOtp({
           email: normalizedEmail,
+          options: {
+            shouldCreateUser: false,
+          },
         });
 
         if (otpError) {
+          if (otpError.status === 429) {
+            throw new Error('Please wait a moment before requesting another OTP.');
+          }
           throw otpError;
         }
 
@@ -109,10 +115,14 @@ export default function LoginScreen() {
 
       router.push('/onboarding/health-snapshot');
     } catch (err) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : 'Something went wrong. Please try again.';
+      let message = 'Something went wrong. Please try again.';
+      if (err instanceof Error) {
+        if (err.message.toLowerCase().includes('otp') || err.message.toLowerCase().includes('token') || err.message.toLowerCase().includes('expired')) {
+          message = 'The OTP is invalid or has expired. Please request a new one.';
+        } else {
+          message = err.message;
+        }
+      }
       setError(message);
     } finally {
       setLoading(false);
